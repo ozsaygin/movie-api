@@ -70,7 +70,7 @@ class Ticket(Resource):
             if res_count > 99:
                 return None, 409
             reservation_no = str(len(reservations) + 1)
-            reservations.append({'movie': movie, 'reservation_no': reservation_no, 'seat_no': str(res_count+1) })
+            reservations.append({'movie': movie, 'reservation_no': reservation_no, 'seat_no': res_count+1 })
             return {'reservation_no': reservation_no}, 201
         
         else:
@@ -99,11 +99,32 @@ class Ticket(Resource):
             return None, 404
 
 
-#     def put(self):
-#         pass
+    def put(self):
+        data = request.get_json()
+        res_no = data['reservation_no']
+        seat_no = data['seat_no']
 
-#     def delete(self):
-#         pass
+
+        for reservation in reservations:
+            if reservation['reservation_no'] == res_no:
+                tmp = reservation.copy()
+                tmp['seat_no'] = seat_no
+                if tmp not in reservations:
+                    reservation['seat_no'] = seat_no
+                    return None, 200
+                else:
+                    return None, 409
+        return None, 404
+
+            
+
+    def delete(self):
+        res_no = request.get_json()['reservation_no']
+        for reservation in reservations:
+            if res_no == reservation['reservation_no']:
+                reservations.remove(reservation)
+                return None, 200
+        return None, 404
 
 
 api.add_resource(Movies, "/movies")
