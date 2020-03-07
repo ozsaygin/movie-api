@@ -19,6 +19,9 @@ reservations_nums = 0
 parser = reqparse.RequestParser()
 
 
+
+
+
 class Movies(Resource):
     def get(self):
         print(request.get_json())
@@ -56,20 +59,45 @@ class MoviesNameDate(Resource):
         return None, 404
 
 
-# class Ticket(Resource):
-#     def post(self):
-#         movie = request.get_json()
-#         if movie in movies: # session exists
-#             if movie in reservations: # session
-#                 if len(movie['tickets']) <= 100:
-                    
-#         else: # session does not exist
-#             return None, 404
+class Ticket(Resource):
+    def post(self):
+        movie = request.get_json()
+        if movie in movies:
+            res_count = 0
+            for res in reservations:
+                if res['movie'] == movie:
+                    res_count += 1
+            if res_count > 99:
+                return None, 409
+            reservation_no = str(len(reservations) + 1)
+            reservations.append({'movie': movie, 'reservation_no': reservation_no, 'seat_no': str(res_count+1) })
+            return {'reservation_no': reservation_no}, 201
+        
+        else:
+            return None, 404
+            
 
+    def get(self):
+        data = request.get_json()
+        print(data)
+        if data == None:
+            res_temp = []
+            for r in reservations:
+                ticket = r['movie']
+                ticket['seat_no'] = r['seat_no']
+                ticket['reservation_no'] = r['reservation_no']
+                res_temp.append(ticket)
+            return res_temp, 200
+        else:
+            for res in reservations:
+                if res['reservation_no'] == data['reservation_no']:
+                    ticket = res['movie']
+                    ticket['seat_no'] = res['seat_no']
+                    print(ticket)
+                    return ticket, 200
 
-    # def get(self):
-    #     data = request.get_json()
-    #     res_no = data['reservation_no']
+            return None, 404
+
 
 #     def put(self):
 #         pass
@@ -80,7 +108,7 @@ class MoviesNameDate(Resource):
 
 api.add_resource(Movies, "/movies")
 api.add_resource(MoviesNameDate, "/movies/<name>/<date>")
-# api.add_resource(Ticket, "/ticket")
+api.add_resource(Ticket, "/ticket")
 
 if __name__ == "__main__":
     app.run(debug=True)

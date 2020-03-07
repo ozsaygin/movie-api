@@ -122,7 +122,7 @@ try:
 	for i in range(3):
 		response = requests.post((URL+"/ticket"), json=movies[i])
 		if response.status_code != 201:
-			raise Exception("Invalid return code for existing screen no at /tickets, iter: "+str(i))
+			raise Exception("Invalid return code for existing screen no at /tickets, iter: " + str(i))
 		else:
 			reservations.append(response.json())
 	print("Test 6 succeeds")		
@@ -130,12 +130,13 @@ except Exception as e:
 	print(str(e))
 	print ("Test 6 fails")	
 		
-exit()	
+	
 		
 #overload		
 try:
 	for i in range(SEAT_LIMIT):
 		response = requests.post((URL+"/ticket"), json=movies[5])
+		
 		if response.status_code != 201:
 			raise Exception("Invalid return code at iter: "+str(i))
 		else:
@@ -170,8 +171,10 @@ except Exception as e:
 #view all reservations	
 try:
 	response = requests.get((URL+"/ticket"))
+	print(response.json())
 	reservation_nos_local=list(map(lambda x:x["reservation_no"],reservations))
 	reservation_nos_server=list(map(lambda x:x["reservation_no"],response.json()))
+	print(reservation_nos_local, reservation_nos_server)
 	pairs=zip(reservation_nos_local, reservation_nos_server)
 	if any(x != y for x, y in pairs):
 		raise Exception("Result is not equal to local copy")
