@@ -16,15 +16,11 @@ PASSWORD = 'admin'
 movies = []
 reservations = []
 reservations_nums = 0
-parser = reqparse.RequestParser()
-
-
 
 
 
 class Movies(Resource):
     def get(self):
-        print(request.get_json())
         return movies, 200
 
     def post(self): # admin only
@@ -79,7 +75,6 @@ class Ticket(Resource):
 
     def get(self):
         data = request.get_json()
-        print(data)
         if data == None:
             res_temp = []
             for r in reservations:
@@ -93,7 +88,6 @@ class Ticket(Resource):
                 if res['reservation_no'] == data['reservation_no']:
                     ticket = res['movie']
                     ticket['seat_no'] = res['seat_no']
-                    print(ticket)
                     return ticket, 200
 
             return None, 404

@@ -14,7 +14,6 @@ try:
 	response = requests.post((URL+"/ticket"), json={"name": "Parasite", "date": "03.03.2020", "time": "20:00", "user":"admin","password":"123456"})
 	if(response.status_code!=401):
 		raise Exception("Wrong password should be rejected by the server")
-
 	movie = {"name": "Parasite", "date": "03.03.2020", "time": "20:00","user":"admin","password":"maliciousaccess"}
 	response = requests.post((URL+"/movies"), json = movie)
 	if response.status_code == 201:
@@ -56,6 +55,7 @@ except Exception as e:
 	print ("Test 1 fails")
 
 
+
 #Check if the movies exist in the D.B.
 try:
 	if len(movies) < 2:
@@ -94,7 +94,7 @@ try:
 except Exception as e:
 	print(str(e))
 	print ("Test 3 fails")		
-		
+
 #Delete some movies		
 try:
 	for i in range(10):
@@ -113,6 +113,7 @@ except Exception as e:
 try:
 	for i in range(10):
 		response = requests.post((URL+"/ticket"), json=movies[len(movies)-1-i])
+		print(movies[len(movies)-1-i])
 		if response.status_code != 404:
 			raise Exception("Invalid return code for non existing screen no at /tickets")
 	print("Test 5 succeeds")
@@ -120,14 +121,14 @@ except Exception as e:
 	print(str(e))
 	print ("Test 5 fails")	
 
-		
+
 #make reservations for valid movies
 reservations=[]
 try:
 	for i in range(3):
 		response = requests.post((URL+"/ticket"), json=movies[i])
 		if response.status_code != 201:
-			raise Exception("Invalid return code for existing screen no at /tickets, iter: "++str(i))
+			raise Exception("Invalid return code for existing screen no at /tickets, iter: "+str(i))
 		else:
 			reservations.append(response.json())
 	print("Test 6 succeeds")		
@@ -135,7 +136,7 @@ except Exception as e:
 	print(str(e))
 	print ("Test 6 fails")	
 		
-		
+
 		
 #overload		
 try:
@@ -158,7 +159,7 @@ except Exception as e:
 #view reservations	
 try:
 	if(len(reservations) < 3):
-		raise Except("Insufficient number of reservations to do Test 8")
+		raise Exception("Insufficient number of reservations to do Test 8")
 	for reservation in reservations:
 		response = requests.get((URL+"/ticket"), json={"reservation_no":reservation["reservation_no"]})
 		if(response.status_code!=200):
@@ -188,7 +189,6 @@ try:
 			
 except Exception as e:
 	print(str(e))
-
 	print ("Test 9 fails")	
 
 #change seat_no	

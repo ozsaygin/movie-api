@@ -1,15 +1,21 @@
 import requests 
 import collections
+import hashlib
 
 SEAT_LIMIT=100
 
 URL="http://0.0.0.0:5000"
 
+password=hashlib.sha256(b"admin").hexdigest()
 
 movies = []
 #Post some movies
 try:
-	movie = {"name": "Parasite", "date": "03.03.2020", "time": "20:00"}
+	response = requests.post((URL+"/movies"), json={"name": "Parasite", "date": "03.03.2020", "time": "20:00", "user":"admin","password":"123456"})
+	if(response.status_code!=401):
+		raise Exception("Wrong password should be rejected by the server")
+
+	movie = {"name": "Parasite", "date": "03.03.2020", "time": "20:00","user":"admin","password":password}
 	response = requests.post((URL+"/movies"), json = movie)
 	if response.status_code == 201:
 		content = response.json()
@@ -17,7 +23,7 @@ try:
 		movies.append(movie)
 	else: raise Exception("First post fails") 	
 
-	movie = {"name": "The Gentlemen", "date": "03.03.2020", "time": "22:15"}	
+	movie = {"name": "The Gentlemen", "date": "03.03.2020", "time": "22:15","user":"admin","password":password}
 	response = requests.post((URL+"/movies"), json=movie)
 	if response.status_code == 201:
 		content = response.json()
@@ -26,7 +32,7 @@ try:
 	else: raise Exception("Second post fails") 	
 	
 	for i in range(0,31):
-		movie = {"name": "The Gentlemen", "date": '{0:02d}'.format(i+1)+".03.2020", "time": "22:15"}	
+		movie = {"name": "The Gentlemen", "date": '{0:02d}'.format(i+1)+".03.2020", "time": "22:15","user":"admin","password":password}	
 		response = requests.post((URL+"/movies"), json=movie)
 
 		if response.status_code == 201:
@@ -36,7 +42,7 @@ try:
 		else: raise Exception("First loop fails") 	
 	
 	for i in range(0,31):
-		movie = {"name": "It must be heaven", "date": '{0:02d}'.format(i+1)+".03.2020", "time": "18:30"}	
+		movie = {"name": "It must be heaven", "date": '{0:02d}'.format(i+1)+".03.2020", "time": "18:30","user":"admin","password":password}	
 		response = requests.post((URL+"/movies"), json=movie)
 		if response.status_code == 201:
 			content = response.json()
@@ -168,15 +174,13 @@ except Exception as e:
 
 #view all reservations	
 try:
-	response = requests.get((URL+"/ticket"))
-	print(response.text)
+	response = requests.get((URL+"/ticket"), json={"user":"admin","password":"maliciousaccess"})
+	if(response.status_code!=401):
+		raise Exception("Wrong password should be rejected by the server")
+	response = requests.get((URL+"/ticket"), json={"user":"admin","password":password})
 	reservation_nos_local=list(map(lambda x:x["reservation_no"],reservations))
-	print(reservation_nos_local)
-	print(response.json())
 	reservation_nos_server=list(map(lambda x:x["reservation_no"],response.json()))
-	print('here2')
 	pairs=zip(reservation_nos_local, reservation_nos_server)
-	print('here3')
 	if any(x != y for x, y in pairs):
 		raise Exception("Result is not equal to local copy")
 
