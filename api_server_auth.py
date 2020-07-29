@@ -26,13 +26,16 @@ class Movies(Resource):
 
     def post(self):  # admin only
         content = request.get_json()
-        for screen_no in range(SCREEN_COUNT):
-            content["screen_no"] = screen_no
-            if content not in movies:
-                movies.append(content)
-                return {"screen_no": screen_no}, 201
-
-        return None, 404
+        if (content["user"] == USERNAME and content["password"] == hashlib.sha256(PASSWORD.encode()).hexdigest()):
+            content = request.get_json()
+            for screen_no in range(SCREEN_COUNT):
+                content["screen_no"] = screen_no
+                if content not in movies:
+                    movies.append(content)
+                    return {"screen_no": screen_no}, 201
+            return None, 404
+        else:
+            return None, 401
 
 
 class MoviesNameDate(Resource):
@@ -59,7 +62,6 @@ class Ticket(Resource):
     def post(self):
         content = request.get_json()
         if "screen_no" in content:
-            # check whether session exits
             for movie in movies:
                 if movie == content:
                     # only admins are allowed
@@ -79,9 +81,6 @@ class Ticket(Resource):
                     )
                     return {"reservation_no": reservation_no}, 201
             return None, 404
-        else:
-            if content["user"] != USERNAME or content["password"] != PASSWORD_HASH:
-                return None, 401
 
     def get(self):
         content = request.get_json()

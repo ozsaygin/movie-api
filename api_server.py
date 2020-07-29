@@ -23,7 +23,7 @@ class Movies(Resource):
     def get(self):
         return movies, 200
 
-    def post(self): # admin only
+    def post(self):
         movie = request.get_json()
         for i in range(SCREEN_COUNT):
             tmp = movie

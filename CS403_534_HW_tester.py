@@ -169,14 +169,9 @@ except Exception as e:
 #view all reservations	
 try:
 	response = requests.get((URL+"/ticket"))
-	print(response.text)
 	reservation_nos_local=list(map(lambda x:x["reservation_no"],reservations))
-	print(reservation_nos_local)
-	print(response.json())
 	reservation_nos_server=list(map(lambda x:x["reservation_no"],response.json()))
-	print('here2')
 	pairs=zip(reservation_nos_local, reservation_nos_server)
-	print('here3')
 	if any(x != y for x, y in pairs):
 		raise Exception("Result is not equal to local copy")
 
